@@ -10,10 +10,14 @@
 #include <thread> // директива, отвечающая за потоки
 #include <vector>
 #include <string>
+#include <mutex>
 
 const int VEC_SIZE = 10; // размер массива
 const short int SCHED_VAL = 3; // цифра, которую будем искать на конце чисел
 const short int THREADS_AMOUNT = 2; // количество потоков, не использовал, но мб когда-то пригодится
+
+std::recursive_mutex _lock;
+bool flag = false; // флаг, сигнализирующий о нахождении числа
 
 template<typename T>
 /* дженерик: я их тут использую, чтобы программа работала как для целых чисел,
@@ -55,24 +59,24 @@ short int getLastDigit(T var) {
 }
 
 template <typename T> // дженерик
-void searchForLastDigitInMass(const std::vector<T> &vec, bool &flag, unsigned int beginIndex, unsigned int endIndex) {
+void searchForLastDigitInMass(const std::vector<T> &vec, unsigned int beginIndex, unsigned int endIndex) {
     /* на вход принимаем массив, флаг, который будет индикатором того, что нужное число было найдено, индексы начала и конца массива*/
                                           
-    
     short int var; // тут будем хранить последнюю цифру числа
     
+    std::cout << "Thread " << std::this_thread::get_id() << " here!\n";
+    /* строка выше - индикатор того, что потоки с разными айди заходят в эту функцию, которая называется
+     функцией потока, т.к каждый поток выполняет именно ее. То, что в серидине сиаута это метод получения
+     айди потока*/
+    
     for (unsigned int i = beginIndex; i < endIndex; ++i) {
-        
-        std::cout << "Thread " << std::this_thread::get_id() << " here!\n";
-        /* строка выше - индикатор того, что потоки с разными айди заходят в эту функцию, которая называется
-         функцией потока, т.к каждый поток выполняет именно ее. То, что в серидине сиаута это метод получения
-         айди потока*/
         
         var = getLastDigit(vec[i]);
         /* вызывем функцию поиска последнего числа, пока не найдем такое, что нам подходит,
          или не дойдем до конца куска массива, за который ответственен данынй поток */
         
         if (var == SCHED_VAL) {
+            std::lock_guard<std::recursive_mutex> locker(_lock);
             flag = true;
             break;
         } else continue;
@@ -90,9 +94,7 @@ void showVec(const std::vector<T> &vec) { // вывод массива
 
 int main() {
     
-    srand(time(NULL)); // для генерации рандомных чисел
-    
-    bool flag = false; // флаг, сигнализирующий о нахождении числа
+    srand((unsigned int)time(NULL)); // для генерации рандомных чисел
     
     std::vector<double> vec; // массив, можно вместо дабл писать инт или флоат, все будет работать (наверно)
     
@@ -107,21 +109,10 @@ int main() {
      с которой работает поток, потом все параметры функции через запятую, если менять дабл на что-то выше в коде, то переписывать и тут.
      Все значения, что передаются по ссылке, должны быть обернуты в std::ref, также для 1-го потока я передаю первую половину массива,
      для 2-го - вторую, пока не придумал, как быть с некратными размерами*/
-    std::thread t1(searchForLastDigitInMass<double>,
-                   std::ref(vec),
-                   std::ref(flag),
-                   0,
-                   vec.size() / 2
-                   );
+    std::thread t1(searchForLastDigitInMass<double>, vec, 0, vec.size() / 2);
     
-    std::thread t2(searchForLastDigitInMass<double>,
-                   std::ref(vec),
-                   std::ref(flag),
-                   vec.size() / 2,
-                   vec.size()
-                   );
+    std::thread t2(searchForLastDigitInMass<double>, vec, vec.size() / 2, vec.size());
     
-    // что-то вроде слияния потоков для их остановки
     t1.join();
     t2.join();
     

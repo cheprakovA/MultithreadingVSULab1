@@ -23,7 +23,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		B22ED2FE2332D6B5001F72B4 /* MultithreadingVSULab1 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MultithreadingVSULab1; sourceTree = BUILT_PRODUCTS_DIR; };
+		B22ED2FE2332D6B5001F72B4 /* MultithreadingVSU */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MultithreadingVSU; sourceTree = BUILT_PRODUCTS_DIR; };
 		B22ED3012332D6B5001F72B4 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -49,7 +49,7 @@
 		B22ED2FF2332D6B5001F72B4 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				B22ED2FE2332D6B5001F72B4 /* MultithreadingVSULab1 */,
+				B22ED2FE2332D6B5001F72B4 /* MultithreadingVSU */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -65,9 +65,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		B22ED2FD2332D6B5001F72B4 /* MultithreadingVSULab1 */ = {
+		B22ED2FD2332D6B5001F72B4 /* MultithreadingVSU */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B22ED3052332D6B5001F72B4 /* Build configuration list for PBXNativeTarget "MultithreadingVSULab1" */;
+			buildConfigurationList = B22ED3052332D6B5001F72B4 /* Build configuration list for PBXNativeTarget "MultithreadingVSU" */;
 			buildPhases = (
 				B22ED2FA2332D6B5001F72B4 /* Sources */,
 				B22ED2FB2332D6B5001F72B4 /* Frameworks */,
@@ -77,9 +77,9 @@
 			);
 			dependencies = (
 			);
-			name = MultithreadingVSULab1;
+			name = MultithreadingVSU;
 			productName = MultithreadingVSULab1;
-			productReference = B22ED2FE2332D6B5001F72B4 /* MultithreadingVSULab1 */;
+			productReference = B22ED2FE2332D6B5001F72B4 /* MultithreadingVSU */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -96,7 +96,7 @@
 					};
 				};
 			};
-			buildConfigurationList = B22ED2F92332D6B5001F72B4 /* Build configuration list for PBXProject "MultithreadingVSULab1" */;
+			buildConfigurationList = B22ED2F92332D6B5001F72B4 /* Build configuration list for PBXProject "MultithreadingVSU" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -108,7 +108,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				B22ED2FD2332D6B5001F72B4 /* MultithreadingVSULab1 */,
+				B22ED2FD2332D6B5001F72B4 /* MultithreadingVSU */,
 			);
 		};
 /* End PBXProject section */
@@ -257,7 +257,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		B22ED2F92332D6B5001F72B4 /* Build configuration list for PBXProject "MultithreadingVSULab1" */ = {
+		B22ED2F92332D6B5001F72B4 /* Build configuration list for PBXProject "MultithreadingVSU" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B22ED3032332D6B5001F72B4 /* Debug */,
@@ -266,7 +266,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B22ED3052332D6B5001F72B4 /* Build configuration list for PBXNativeTarget "MultithreadingVSULab1" */ = {
+		B22ED3052332D6B5001F72B4 /* Build configuration list for PBXNativeTarget "MultithreadingVSU" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B22ED3062332D6B5001F72B4 /* Debug */,
