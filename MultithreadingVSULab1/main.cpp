@@ -7,59 +7,72 @@
 //
 
 #include <iostream>
-#include <thread>
-#include <chrono>
+#include <thread> // директива, отвечающая за потоки
 #include <vector>
 #include <string>
 
-const int VEC_SIZE = 10;
-const short int THREADS_AMOUNT = 4;
+const int VEC_SIZE = 10; // размер массива
+const short int SCHED_VAL = 3; // цифра, которую будем искать на конце чисел
+const short int THREADS_AMOUNT = 2; // количество потоков, не использовал, но мб когда-то пригодится
 
 template<typename T>
-void fillVector(std::vector<T> &vec) throw (std::string) {
+/* дженерик: я их тут использую, чтобы программа работала как для целых чисел,
+ так и для вещественных */
+void fillVector(std::vector<T> &vec) { // функция, которая заполняет массив
     
-    switch( *typeid(T).name() ) {
-        case 'i':
+    switch( *typeid(T).name() ) { // смотрим на то, какого типа массив мы передали
+        case 'i': // если числа интегер, то заполняем массив ЦЕЛЫМИ числами от 1 до ста
             for (int i = 0; i < VEC_SIZE; ++i)
                 vec.push_back(rand() % 101);
-            break;
-        case 'd': case 'f':
-            double val;
+            break; // и выходим
+        case 'd': case 'f': // если дабл или флоат, то заполняем вещественными
             for (int i = 0; i < VEC_SIZE; ++i) {
-                val = rand() % 100;
-                val += (rand() % 100) / 100.0;
-                vec.push_back(val);
+                vec.push_back((rand() % 10000) / 100.0);
+                /* генерирую число 0-9999, потом делю на 100,как раз и получаются вещественные числа 0-99.99 */
             }
-            break;
-        default:
-            throw "Incorrect mass type";
+            break; // и выходим
+        default: // если не инт не дабл не флоат, то кидаем ошибку выполнения программы
+            throw std::runtime_error("incorrect mass type");
     }
 }
 
-template <typename T>
+template <typename T> // такой же дженерик
 short int getLastDigit(T var) {
+    /* функция принимает на вход один элемент массива, и, в зависимости от его типа, возвращает последнюю цифру,
+     для целых просто последнюю, для вещественных последнюю в дробной части */
 
-    switch( *typeid(T).name() ) {
-        case 'i':
-            return static_cast<int>(var) % 10;
-        case 'd': case 'f':
+    switch( *typeid(T).name() ) { // смотрим на тип
+        case 'i': // если целые
+            return static_cast<int>(var) % 10; // просто вернем остаток от деления на 10
+        case 'd': case 'f': // вещественные
             while(var - static_cast<int>(var) != 0.0)
-                var *= 10;
-            return static_cast<int>(var) % 10;
+                var *= 10; // умножаем на 10, пока не избавимся от дробной части
+            return static_cast<int>(var) % 10; // возвращаем остаток от деления на 10
         default:
+            // сюда мы никогда не зайдем, но на всякий если не инт не дабл не флоат вернуть '-1' как невозможный исход
             return -1;
     }
 }
 
-template <typename T>
-void searchForLastDigitInMass(const std::vector<T> &vec, short int digit, bool &flag, unsigned int beginIndex, unsigned int endIndex) {
+template <typename T> // дженерик
+void searchForLastDigitInMass(const std::vector<T> &vec, bool &flag, unsigned int beginIndex, unsigned int endIndex) {
+    /* на вход принимаем массив, флаг, который будет индикатором того, что нужное число было найдено, индексы начала и конца массива*/
+                                          
     
-    short int var;
+    short int var; // тут будем хранить последнюю цифру числа
     
     for (unsigned int i = beginIndex; i < endIndex; ++i) {
         
+        std::cout << "Thread " << std::this_thread::get_id() << " here!\n";
+        /* строка выше - индикатор того, что потоки с разными айди заходят в эту функцию, которая называется
+         функцией потока, т.к каждый поток выполняет именно ее. То, что в серидине сиаута это метод получения
+         айди потока*/
+        
         var = getLastDigit(vec[i]);
-        if (var == digit) {
+        /* вызывем функцию поиска последнего числа, пока не найдем такое, что нам подходит,
+         или не дойдем до конца куска массива, за который ответственен данынй поток */
+        
+        if (var == SCHED_VAL) {
             flag = true;
             break;
         } else continue;
@@ -67,9 +80,7 @@ void searchForLastDigitInMass(const std::vector<T> &vec, short int digit, bool &
 }
 
 template <typename T>
-void showVec(const std::vector<T> &vec) {
-    
-    std::cout << std::endl;
+void showVec(const std::vector<T> &vec) { // вывод массива
 
     for (int i = 0; i < vec.size(); ++i)
         std::cout << vec[i] << " ";
@@ -79,32 +90,47 @@ void showVec(const std::vector<T> &vec) {
 
 int main() {
     
-    srand(time(NULL));
+    srand(time(NULL)); // для генерации рандомных чисел
     
-    bool flag = false;
-    const short int searchedValue = 3;
+    bool flag = false; // флаг, сигнализирующий о нахождении числа
     
-    // std::vector<int> vec1;
-    std::vector<double> vec2;
+    std::vector<double> vec; // массив, можно вместо дабл писать инт или флоат, все будет работать (наверно)
     
-    try {
-        // fillVector(vec1);
-        fillVector(vec2);
-    } catch (std::string ex) {
-        std::cout << ex << std::endl;
-        return -1;
+    try { // пытаемся заполнить массив
+        fillVector<>(vec);
+    } catch (std::string ex) { // если массив определен неправильно, ловим ошибку выполнения
+        std::cout << ex << std::endl; // выводим сообщение об ошибке
+        return -1; // завершаем работу программы
     }
 
-    std::thread t1(searchForLastDigitInMass<double>, std::ref(vec2), searchedValue, std::ref(flag), 0, vec2.size() / 2);
-    std::thread t2(searchForLastDigitInMass<double>, std::ref(vec2), searchedValue, std::ref(flag), vec2.size() / 2, vec2.size());
+    /* ниже это инициализация потоков, у меня пока 2. В качестве аргументов конструктора передаются сначала ссылка на функцию,
+     с которой работает поток, потом все параметры функции через запятую, если менять дабл на что-то выше в коде, то переписывать и тут.
+     Все значения, что передаются по ссылке, должны быть обернуты в std::ref, также для 1-го потока я передаю первую половину массива,
+     для 2-го - вторую, пока не придумал, как быть с некратными размерами*/
+    std::thread t1(searchForLastDigitInMass<double>,
+                   std::ref(vec),
+                   std::ref(flag),
+                   0,
+                   vec.size() / 2
+                   );
     
+    std::thread t2(searchForLastDigitInMass<double>,
+                   std::ref(vec),
+                   std::ref(flag),
+                   vec.size() / 2,
+                   vec.size()
+                   );
     
+    // что-то вроде слияния потоков для их остановки
     t1.join();
     t2.join();
     
-    showVec(vec2);
+    showVec<>(vec); // вывожу массив для проверки работы программы
     
-    std::cout << flag << std::endl;
+    std::cout << flag << std::endl; // вывожу флаг
     
     return 0;
+    
+    /* чтобы проверить работу в однопоточном режиме, можно просто вызвать функцию searchForLastDigitInMass указав начало массива на 0,
+     а конец - на последний элемент */
 }
